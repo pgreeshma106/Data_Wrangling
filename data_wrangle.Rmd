@@ -1,0 +1,86 @@
+---
+title: "R Notebook"
+output:
+  word_document: default
+  html_notebook: default
+---
+
+AUTHOR: Greeshma Chowdary Peddineni
+```{r warning=FALSE, message=FALSE}
+if(!require(EDAWR)) {
+install.packages("devtools")
+devtools::install_github("rstudio/EDAWR")
+}
+library(tidyr)
+library(dplyr)
+library(EDAWR)
+library(ggplot2)
+
+```
+
+Using the STORMS dataset, and DPLYR, answer the following:
+Your answer should display directly in the knitted document and include only the answer (no extraneous info)
+1:
+show only storm (name) and date
+```{r}
+
+storms %>% mutate(date = paste(year, month, day, sep = "-")) %>% select(name, date)
+```
+
+2:
+show only storms where wind was less than 55
+```{r}
+
+filter(storms, wind<55)
+```
+
+3: 
+split date into individual columns for month, day, year
+save as a new dataset called mystorms
+```{r}
+
+mystorms <- storms %>% 
+  unite("date", year:day, sep = "-") %>% 
+  separate(date, into = c("year", "month", "day"), sep="-")
+mystorms
+```
+
+4:
+list storm name(s) for any storms that happened in June (from your mystorms dataset)
+```{r}
+
+mystorms %>% filter(month == 6) %>% select(name)
+```
+
+Now using the rates dataset, answer the following:
+
+5:
+what is the rate for Ethiopia in 2007?
+```{r}
+
+rates %>% filter(country == "Ethiopia" & year == 2007) %>% select(rate)
+```
+
+6:
+create a copy of the rates dataset called myrates
+add a new column that is population times rate, call this column 'cases'
+which country has the highest value in cases, in which year?
+```{r}
+myrates <- rates %>% mutate(cases = population * rate)
+highest_cases <- myrates %>% arrange(desc(cases)) %>% slice(1)
+highest_cases
+```
+
+7:
+Change year to a factor in myrates.
+create a plot for Ethiopia showing cases over time
+```{r}
+ethiopia_cases <- myrates %>% filter(country == "Ethiopia")
+ggplot(ethiopia_cases, aes(x = year, y = cases)) + geom_col(fill = "maroon") + labs(title = "Ethiopia: Cases Over Time", x="Year", y = "Cases") +
+theme_minimal()
+myrates <- myrates %>% mutate(cases_per_1000 = cases / 1000)
+myrates
+
+```
+
+
